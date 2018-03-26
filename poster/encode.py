@@ -5,6 +5,11 @@ as multipart/form-data suitable for a HTTP POST or PUT request.
 
 multipart/form-data is the standard way to upload files over HTTP"""
 
+from past.builtins import cmp
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 __all__ = ['gen_boundary', 'encode_and_quote', 'MultipartParam',
         'encode_string', 'encode_file_header', 'get_body_size', 'get_headers',
         'multipart_encode']
@@ -21,7 +26,7 @@ except ImportError:
         bits = random.getrandbits(160)
         return sha.new(str(bits)).hexdigest()
 
-import urllib, re, os, mimetypes
+import urllib.request, urllib.parse, urllib.error, re, os, mimetypes
 
 def encode_and_quote(data):
     """If ``data`` is unicode, return urllib.quote_plus(data.encode("utf-8"))
@@ -29,16 +34,16 @@ def encode_and_quote(data):
     if data is None:
         return None
 
-    if isinstance(data, unicode):
+    if isinstance(data, str):
         data = data.encode("utf-8")
-    return urllib.quote_plus(data)
+    return urllib.parse.quote_plus(data)
 
 def _strify(s):
     """If s is a unicode string, encode it to UTF-8 and return the results,
     otherwise return str(s), or None if s is None"""
     if s is None:
         return None
-    if isinstance(s, unicode):
+    if isinstance(s, str):
         return s.encode("utf-8")
     return str(s)
 
@@ -77,7 +82,7 @@ class MultipartParam(object):
         if filename is None:
             self.filename = None
         else:
-            if isinstance(filename, unicode):
+            if isinstance(filename, str):
                 # Encode with XML entities
                 self.filename = filename.encode("ascii", "xmlcharrefreplace")
             else:
@@ -135,7 +140,7 @@ class MultipartParam(object):
 
         The values may be strings or file objects."""
         if hasattr(params, 'items'):
-            params = params.items()
+            params = list(params.items())
 
         retval = []
         for item in params:
@@ -273,7 +278,7 @@ def get_headers(params, boundary):
     """Returns a dictionary with Content-Type and Content-Length headers
     for the multipart/form-data encoding of ``params``."""
     headers = {}
-    boundary = urllib.quote_plus(boundary)
+    boundary = urllib.parse.quote_plus(boundary)
     headers['Content-Type'] = "multipart/form-data; boundary=%s" % boundary
     headers['Content-Length'] = get_body_size(params, boundary)
     return headers
@@ -316,7 +321,7 @@ def multipart_encode(params, boundary=None):
     if boundary is None:
         boundary = gen_boundary()
     else:
-        boundary = urllib.quote_plus(boundary)
+        boundary = urllib.parse.quote_plus(boundary)
 
     headers = get_headers(params, boundary)
     params = MultipartParam.from_params(params)
