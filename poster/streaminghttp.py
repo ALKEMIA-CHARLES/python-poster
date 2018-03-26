@@ -146,8 +146,8 @@ class StreamingHTTPHandler(urllib.request.HTTPHandler):
         if we're using an interable value"""
         # Make sure that if we're using an iterable object as the request
         # body, that we've also specified Content-Length
-        if req.has_data():
-            data = req.get_data()
+        if req.data is not None:
+            data = req.data
             if hasattr(data, 'read') or hasattr(data, 'next'):
                 if not req.has_header('Content-length'):
                     raise ValueError(
@@ -171,8 +171,8 @@ class StreamingHTTPSHandler(urllib.request.HTTPSHandler):
     def https_request(self, req):
         # Make sure that if we're using an iterable object as the request
         # body, that we've also specified Content-Length
-        if req.has_data():
-            data = req.get_data()
+        if req.data is not None:
+            data = req.data
             if not hasattr(data, 'read') and hasattr(data, 'next'):
                 if not req.has_header('Content-length'):
                     raise ValueError(
@@ -186,8 +186,7 @@ def register_openers():
 
     Returns the created OpenerDirector object."""
     handlers = [StreamingHTTPHandler, StreamingHTTPRedirectHandler]
-    if hasattr(httplib, "HTTPS"):
-        handlers.append(StreamingHTTPSHandler)
+    handlers.append(StreamingHTTPSHandler)
 
     opener = urllib.request.build_opener(*handlers)
 
