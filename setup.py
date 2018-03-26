@@ -4,7 +4,7 @@ from distutils.cmd import Command
 # To update version number, edit:
 # poster/__init__.py
 # docs/index.rst
-version = "0.7.0"
+version = "0.8.2"
 
 class sphinx_command(Command):
     description = "rebuild sphinx docs"
